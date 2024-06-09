@@ -1,6 +1,8 @@
 import typer
 from rich import print
-from utils.directory import is_mounted_directory
+from utils.directory import is_mounted_directory, recursive_scan
+import time
+import os
 
 app = typer.Typer()
 
@@ -13,6 +15,16 @@ def scan(directory: str):
 
     if is_mounted_directory(directory):
         print("Directory is detected as mounted. To improve file I/O performance, when performing conversions the mkv file will be copied locally during video encoding.")
+
+    time_start = time.time()
+    matches = recursive_scan(directory)
+    duration = time.time() - time_start
+
+    [print(os.path.basename(match)) for match in matches]
+    print("\n\n")
+    print("Found", len(matches), "files in", round(duration, 2), "seconds.")
+    print("Use the 'convert' command to convert these files.")
+
 
 @app.command()
 def convert(directory: str):
